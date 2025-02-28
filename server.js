@@ -54,6 +54,17 @@ app.get('/jogos', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+app.get('/jogos-ao-vivo', async (req, res) => {
+    try {
+        const response = await axios.get(`${API_URL}fixtures?live=all`, {
+            headers: { 'x-rapidapi-key': API_KEY }
+        });
+
+        res.json(response.data.response); // Retorna os jogos ao vivo
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
