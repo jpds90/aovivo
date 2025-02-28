@@ -4,7 +4,7 @@
   "description": "Projeto para capturar dados de futebol ao vivo",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
