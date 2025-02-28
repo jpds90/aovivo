@@ -1,41 +1,51 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogos Ao Vivo</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        h1 { color: #333; }
+        #jogos { margin-top: 20px; }
+        .jogo { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; }
+    </style>
 </head>
 <body>
     <h1>Jogos Ao Vivo</h1>
-    <ul id="lista-jogos"></ul>
+    <div id="jogos">Carregando...</div>
 
     <script>
         async function carregarJogos() {
             try {
-                const response = await fetch("http://localhost:3000/api/jogos-ao-vivo");
+                const response = await fetch("/api/jogos-ao-vivo");
                 const data = await response.json();
+                
+                const jogosDiv = document.getElementById("jogos");
+                jogosDiv.innerHTML = "";
 
-                const lista = document.getElementById("lista-jogos");
-                lista.innerHTML = ""; // Limpa a lista antes de atualizar
-
-                if (data.response.length > 0) {
+                if (data.response && data.response.length > 0) {
                     data.response.forEach(jogo => {
-                        const item = document.createElement("li");
-                        item.textContent = `${jogo.teams.home.name} (${jogo.goals.home}) x (${jogo.goals.away}) ${jogo.teams.away.name}`;
-                        lista.appendChild(item);
+                        const jogoDiv = document.createElement("div");
+                        jogoDiv.className = "jogo";
+                        jogoDiv.innerHTML = `
+                            <h3>${jogo.teams.home.name} 🆚 ${jogo.teams.away.name}</h3>
+                            <p><strong>Placar:</strong> ${jogo.goals.home} - ${jogo.goals.away}</p>
+                            <p><strong>Tempo:</strong> ${jogo.fixture.status.elapsed} min</p>
+                        `;
+                        jogosDiv.appendChild(jogoDiv);
                     });
                 } else {
-                    lista.innerHTML = "<li>Nenhum jogo ao vivo no momento.</li>";
+                    jogosDiv.innerHTML = "Nenhum jogo ao vivo no momento.";
                 }
             } catch (error) {
-                console.error("Erro ao carregar os jogos:", error);
+                document.getElementById("jogos").innerHTML = "Erro ao carregar os jogos.";
+                console.error("Erro ao buscar jogos:", error);
             }
         }
 
-        // Carregar os jogos ao entrar na página
         carregarJogos();
-        // Atualizar a cada 30 segundos
-        setInterval(carregarJogos, 30000);
+        setInterval(carregarJogos, 30000); // Atualiza a cada 30 segundos
     </script>
 </body>
 </html>
