@@ -1,83 +1,41 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogos ao Vivo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        select, button {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px;
-        }
-        iframe {
-            width: 90%;
-            height: 600px;
-            border: none;
-            margin-top: 20px;
-        }
-    </style>
+    <title>Jogos Ao Vivo</title>
 </head>
 <body>
-
-    <h1>Jogos ao Vivo</h1>
-
-    <label for="jogos">Escolha um jogo:</label>
-    <select id="jogos">
-        <option value="">Carregando jogos...</option>
-    </select>
-    <button onclick="exibirJogo()">Ver Jogo</button>
-
-    <iframe id="gameWidget" src="" style="display:none;"></iframe>
+    <h1>Jogos Ao Vivo</h1>
+    <ul id="lista-jogos"></ul>
 
     <script>
-        const apiKey = "d6db9473fe5b77e7f299cadd12f2c0bc";
-        const apiUrl = "https://v3.football.api-sports.io/fixtures?live=all";
-
         async function carregarJogos() {
             try {
-                const response = await fetch(apiUrl, {
-                    method: "GET",
-                    headers: { "x-rapidapi-key": apiKey }
-                });
+                const response = await fetch("http://localhost:3000/api/jogos-ao-vivo");
                 const data = await response.json();
-                const jogos = data.response;
-                const select = document.getElementById("jogos");
 
-                select.innerHTML = "";
-                if (jogos.length === 0) {
-                    select.innerHTML = "<option value=''>Nenhum jogo ao vivo</option>";
-                } else {
-                    jogos.forEach(jogo => {
-                        const option = document.createElement("option");
-                        option.value = jogo.fixture.id;
-                        option.textContent = `${jogo.teams.home.name} vs ${jogo.teams.away.name}`;
-                        select.appendChild(option);
+                const lista = document.getElementById("lista-jogos");
+                lista.innerHTML = ""; // Limpa a lista antes de atualizar
+
+                if (data.response.length > 0) {
+                    data.response.forEach(jogo => {
+                        const item = document.createElement("li");
+                        item.textContent = `${jogo.teams.home.name} (${jogo.goals.home}) x (${jogo.goals.away}) ${jogo.teams.away.name}`;
+                        lista.appendChild(item);
                     });
+                } else {
+                    lista.innerHTML = "<li>Nenhum jogo ao vivo no momento.</li>";
                 }
             } catch (error) {
                 console.error("Erro ao carregar os jogos:", error);
             }
         }
 
-        function exibirJogo() {
-            const gameId = document.getElementById("jogos").value;
-            if (gameId) {
-                document.getElementById("gameWidget").src = `https://api-football-v1.p.rapidapi.com/v3/widgets/game?data-host=v3.football.api-sports.io&data-key=${apiKey}&data-id=${gameId}&data-refresh=30&data-theme=dark&data-show-logos=true`;
-                document.getElementById("gameWidget").style.display = "block";
-            }
-        }
-
-        carregarJogos(); // Carrega os jogos ao vivo quando a página abre
+        // Carregar os jogos ao entrar na página
+        carregarJogos();
+        // Atualizar a cada 30 segundos
+        setInterval(carregarJogos, 30000);
     </script>
-
 </body>
 </html>
