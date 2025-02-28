@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             jogoDiv.innerHTML = `
                 <h3>${jogo.timehome} vs ${jogo.timeaway}</h3>
                 <p>Placar: ${jogo.resultadohome} - ${jogo.resultadoaway}</p>
-                <p>Posse de bola: ${jogo.posse_de_bola}%</p>
-                <p>Chutes ao gol: ${jogo.remates_a_baliza}</p>
+                <p>Data: ${new Date(jogo.created_at).toLocaleString()}</p>
+                <p>Tempo: ${jogo.tempo}</p>
             `;
             jogosDiv.appendChild(jogoDiv);
         });
