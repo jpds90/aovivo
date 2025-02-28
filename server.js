@@ -18,12 +18,13 @@ app.use(express.static('public')); // Servir arquivos estáticos (HTML, CSS, JS)
 // Rota para pegar jogos do banco
 app.get('/jogos', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM jogos ORDER BY data_hora DESC LIMIT 10');
+        const result = await pool.query('SELECT * FROM jogos ORDER BY created_at DESC LIMIT 10');
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
