@@ -1,12 +1,11 @@
-require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuração do banco de dados PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -14,18 +13,18 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public')); // Servir arquivos estáticos (HTML, CSS, JS)
 
-// Rota de teste
-app.get('/', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ message: 'API funcionando!', time: result.rows[0] });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Rota para pegar jogos do banco
+app.get('/jogos', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM jogos ORDER BY data_hora DESC LIMIT 10');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// Iniciar o servidor
 app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+    console.log(`Servidor rodando na porta ${port}`);
 });
