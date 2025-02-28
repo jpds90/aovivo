@@ -1,71 +1,34 @@
 const express = require('express');
-const { Pool } = require('pg');
+const fetch = require('node-fetch'); // Se necessário, instale com `npm install node-fetch`
 const cors = require('cors');
-const axios = require('axios');  // Importando axios
-require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // Importante para o Render
-});
-
-app.use(cors());
+app.use(cors()); // Permite que o frontend acesse a API
 app.use(express.json());
-app.use(express.static('public')); // Servir arquivos estáticos (HTML, CSS, JS)
 
-// Configuração da API-Football
-const API_KEY = 'd6db9473fe5b77e7f299cadd12f2c0bc'; // Sua chave de API
-const API_URL = 'https://v3.football.api-sports.io/';
+const API_KEY = "d6db9473fe5b77e7f299cadd12f2c0bc"; // Substitua pela sua chave
 
-app.get('/jogos', async (req, res) => {
+// Endpoint para buscar jogos ao vivo
+app.get('/api/jogos-ao-vivo', async (req, res) => {
     try {
-        // Requisição para a API-Football para obter os jogos ao vivo
-        const response = await axios.get(`${API_URL}fixtures`, {
+        const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
+            method: "GET",
             headers: {
-                'x-rapidapi-key': API_KEY,
-            },
+                "x-apisports-key": API_KEY,
+                "Content-Type": "application/json"
+            }
         });
 
-        // Dados dos jogos
-        const jogos = response.data.response;
-        
-        // Armazenando os jogos no banco de dados (opcional)
-        jogos.forEach(async (jogo) => {
-            await pool.query(`
-                INSERT INTO jogos (fixture_id, timehome, timeaway, resultadohome, resultadoaway, tempo, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-            `, [
-                jogo.fixture.id,
-                jogo.teams.home.name,
-                jogo.teams.away.name,
-                jogo.goals.home,
-                jogo.goals.away,
-                jogo.status.elapsed,
-                new Date()
-            ]);
-        });
-
-        // Retorna os jogos para o frontend
-        res.json(jogos);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-app.get('/jogos-ao-vivo', async (req, res) => {
-    try {
-        const response = await axios.get(`${API_URL}fixtures?live=all`, {
-            headers: { 'x-rapidapi-key': API_KEY }
-        });
-
-        res.json(response.data.response); // Retorna os jogos ao vivo
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const data = await response.json();
+        res.json(data); // Envia os jogos ao frontend
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar jogos ao vivo." });
     }
 });
 
+// Iniciar o servidor
 app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
+    console.log(`Servidor rodando em http://localhost:${port}`);
 });
