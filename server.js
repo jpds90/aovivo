@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,10 +10,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Rota principal
-app.get('/', (req, res) => {
-    res.send("API de Jogos Ao Vivo está funcionando!");
-});
 
 // Rota para buscar jogos ao vivo da API-Football
 app.get('/api/jogos-ao-vivo', async (req, res) => {
@@ -33,6 +30,10 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
     }
 });
 
+app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 // Inicia o servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
