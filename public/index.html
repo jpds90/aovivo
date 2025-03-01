@@ -9,6 +9,7 @@
         h1 { color: #333; }
         #jogos { margin-top: 20px; }
         .jogo { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; }
+        .estatisticas { margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -25,16 +26,37 @@
                 jogosDiv.innerHTML = "";
 
                 if (data.response && data.response.length > 0) {
-                    data.response.forEach(jogo => {
+                    for (let jogo of data.response) {
                         const jogoDiv = document.createElement("div");
                         jogoDiv.className = "jogo";
-                        jogoDiv.innerHTML = `
+                        
+                        // Dados do jogo
+                        const jogoHtml = `
                             <h3>${jogo.teams.home.name} 🆚 ${jogo.teams.away.name}</h3>
                             <p><strong>Placar:</strong> ${jogo.goals.home} - ${jogo.goals.away}</p>
                             <p><strong>Tempo:</strong> ${jogo.fixture.status.elapsed} min</p>
                         `;
+                        
+                        // Buscar estatísticas do jogo
+                        const statsResponse = await fetch(`/api/estatisticas?teamId=${jogo.teams.home.id}&fixtureId=${jogo.fixture.id}`);
+                        const statsData = await statsResponse.json();
+                        
+                        // Exibindo estatísticas
+                        let statsHtml = "<div class='estatisticas'><h4>Estatísticas:</h4>";
+                        if (statsData.response && statsData.response.length > 0) {
+                            statsData.response.forEach(stat => {
+                                statsHtml += `
+                                    <p><strong>${stat.stat.name}:</strong> ${stat.value}</p>
+                                `;
+                            });
+                        } else {
+                            statsHtml += "<p>Estatísticas não disponíveis no momento.</p>";
+                        }
+                        statsHtml += "</div>";
+                        
+                        jogoDiv.innerHTML = jogoHtml + statsHtml;
                         jogosDiv.appendChild(jogoDiv);
-                    });
+                    }
                 } else {
                     jogosDiv.innerHTML = "Nenhum jogo ao vivo no momento.";
                 }
