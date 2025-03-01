@@ -9,7 +9,7 @@
         h1 { color: #333; }
         #jogos { margin-top: 20px; }
         .jogo { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; }
-        .estatisticas { margin-top: 10px; }
+        .estatisticas { font-size: 14px; color: #777; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -26,43 +26,53 @@
                 jogosDiv.innerHTML = "";
 
                 if (data.response && data.response.length > 0) {
-                    for (let jogo of data.response) {
+                    data.response.forEach(jogo => {
                         const jogoDiv = document.createElement("div");
                         jogoDiv.className = "jogo";
-                        
-                        // Dados do jogo
-                        const jogoHtml = `
+                        jogoDiv.innerHTML = `
                             <h3>${jogo.teams.home.name} 🆚 ${jogo.teams.away.name}</h3>
                             <p><strong>Placar:</strong> ${jogo.goals.home} - ${jogo.goals.away}</p>
                             <p><strong>Tempo:</strong> ${jogo.fixture.status.elapsed} min</p>
+                            <button onclick="carregarEstatisticas(${jogo.fixture.id}, ${jogo.teams.home.id}, ${jogo.teams.away.id})">Ver Estatísticas</button>
+                            <div id="estatisticas-${jogo.fixture.id}" class="estatisticas"></div>
                         `;
-                        
-                        // Buscar estatísticas do jogo
-                        const statsResponse = await fetch(`/api/estatisticas?teamId=${jogo.teams.home.id}&fixtureId=${jogo.fixture.id}`);
-                        const statsData = await statsResponse.json();
-                        
-                        // Exibindo estatísticas
-                        let statsHtml = "<div class='estatisticas'><h4>Estatísticas:</h4>";
-                        if (statsData.response && statsData.response.length > 0) {
-                            statsData.response.forEach(stat => {
-                                statsHtml += `
-                                    <p><strong>${stat.stat.name}:</strong> ${stat.value}</p>
-                                `;
-                            });
-                        } else {
-                            statsHtml += "<p>Estatísticas não disponíveis no momento.</p>";
-                        }
-                        statsHtml += "</div>";
-                        
-                        jogoDiv.innerHTML = jogoHtml + statsHtml;
                         jogosDiv.appendChild(jogoDiv);
-                    }
+                    });
                 } else {
                     jogosDiv.innerHTML = "Nenhum jogo ao vivo no momento.";
                 }
             } catch (error) {
                 document.getElementById("jogos").innerHTML = "Erro ao carregar os jogos.";
                 console.error("Erro ao buscar jogos:", error);
+            }
+        }
+
+        async function carregarEstatisticas(fixtureId, teamHomeId, teamAwayId) {
+            const estatisticasDiv = document.getElementById(`estatisticas-${fixtureId}`);
+            estatisticasDiv.innerHTML = "Carregando estatísticas...";
+
+            try {
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?team=${teamHomeId}&fixture=${fixtureId}`, {
+                    method: "GET",
+                    headers: {
+                        "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc", // Use sua chave API
+                        "Content-Type": "application/json"
+                    }
+                });
+                const data = await response.json();
+
+                const estatisticas = data.response[0];
+                let estatisticasHtml = `<h4>Estatísticas do Jogo</h4>`;
+                estatisticasHtml += `<p><strong>${estatisticas.team.name}:</strong></p>`;
+                estatisticasHtml += "<ul>";
+                estatisticas.statistics.forEach(stat => {
+                    estatisticasHtml += `<li>${stat.type}: ${stat.value}</li>`;
+                });
+                estatisticasHtml += "</ul>";
+                estatisticasDiv.innerHTML = estatisticasHtml;
+            } catch (error) {
+                estatisticasDiv.innerHTML = "Erro ao carregar as estatísticas.";
+                console.error("Erro ao buscar estatísticas:", error);
             }
         }
 
