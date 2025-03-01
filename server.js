@@ -16,12 +16,13 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
         const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
             method: "GET",
             headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc", // Use sua chave API
                 "Content-Type": "application/json"
             }
         });
 
         const data = await response.json();
+        console.log(data);  // Para ver a resposta da API no console
         res.json(data);
     } catch (error) {
         console.error("Erro ao buscar jogos ao vivo:", error);
@@ -29,33 +30,15 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
     }
 });
 
-// Rota para buscar estatísticas de um jogo ao vivo
-app.get('/api/estatisticas', async (req, res) => {
-    const { teamId, fixtureId } = req.query; // Pega os parâmetros teamId e fixtureId da query
-
-    try {
-        const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?team=${teamId}&fixture=${fixtureId}`, {
-            method: "GET",
-            headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
-                "Content-Type": "application/json"
-            }
-        });
-
-        const stats = await response.json();
-        res.json(stats);
-    } catch (error) {
-        console.error("Erro ao buscar estatísticas:", error);
-        res.status(500).json({ error: "Erro interno ao buscar estatísticas" });
-    }
-});
-
+// Servir arquivos estáticos da pasta 'public'
 app.use(express.static('public'));
+
+// Rota para servir o arquivo index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Inicia o servidor
+// Iniciar o servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
