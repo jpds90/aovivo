@@ -16,7 +16,7 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
         const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
             method: "GET",
             headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc1000",
                 "Content-Type": "application/json"
             }
         });
@@ -37,7 +37,7 @@ app.get('/api/jogo-estatisticas/:fixture_id', async (req, res) => {
         const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixture_id}`, {
             method: "GET",
             headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc1000",
                 "Content-Type": "application/json"
             }
         });
