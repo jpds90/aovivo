@@ -9,11 +9,13 @@
         h1 { color: #333; }
         #jogos { margin-top: 20px; }
         .jogo { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; }
+        .estatisticas { margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>Jogos Ao Vivo</h1>
     <div id="jogos">Carregando...</div>
+    <div id="estatisticas" class="estatisticas"></div>
 
     <script>
         async function carregarJogos() {
@@ -32,6 +34,7 @@
                             <h3>${jogo.teams.home.name} 🆚 ${jogo.teams.away.name}</h3>
                             <p><strong>Placar:</strong> ${jogo.goals.home} - ${jogo.goals.away}</p>
                             <p><strong>Tempo:</strong> ${jogo.fixture.status.elapsed} min</p>
+                            <button onclick="carregarEstatisticas(${jogo.fixture.id})">Ver Estatísticas</button>
                         `;
                         jogosDiv.appendChild(jogoDiv);
                     });
@@ -41,6 +44,29 @@
             } catch (error) {
                 document.getElementById("jogos").innerHTML = "Erro ao carregar os jogos.";
                 console.error("Erro ao buscar jogos:", error);
+            }
+        }
+
+        async function carregarEstatisticas(fixture_id) {
+            try {
+                const response = await fetch(`/api/jogo-estatisticas/${fixture_id}`);
+                const data = await response.json();
+
+                const estatisticasDiv = document.getElementById("estatisticas");
+                estatisticasDiv.innerHTML = "<h2>Estatísticas do Jogo:</h2>";
+
+                if (data.response && data.response.length > 0) {
+                    data.response[0].statistics.forEach(stat => {
+                        estatisticasDiv.innerHTML += `
+                            <p><strong>${stat.type}:</strong> ${stat.value}</p>
+                        `;
+                    });
+                } else {
+                    estatisticasDiv.innerHTML = "Nenhuma estatística disponível.";
+                }
+            } catch (error) {
+                document.getElementById("estatisticas").innerHTML = "Erro ao carregar as estatísticas.";
+                console.error("Erro ao buscar estatísticas:", error);
             }
         }
 
