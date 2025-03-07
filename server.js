@@ -16,7 +16,7 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
         const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
             method: "GET",
             headers: {
-                "x-apisports-key": "SUA_CHAVE_CORRETA",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
                 "Content-Type": "application/json"
             }
         });
