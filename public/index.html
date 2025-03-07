@@ -34,7 +34,8 @@
                             <h3>${jogo.teams.home.name} 🆚 ${jogo.teams.away.name}</h3>
                             <p><strong>Placar:</strong> ${jogo.goals.home} - ${jogo.goals.away}</p>
                             <p><strong>Tempo:</strong> ${jogo.fixture.status.elapsed} min</p>
-                            <button onclick="carregarEstatisticas(${jogo.fixture.id})">Ver Estatísticas</button>
+                            <button onclick="carregarEstatisticas(${jogo.fixture.id}, ${jogo.teams.home.id})">Ver Estatísticas ${jogo.teams.home.name}</button>
+                            <button onclick="carregarEstatisticas(${jogo.fixture.id}, ${jogo.teams.away.id})">Ver Estatísticas ${jogo.teams.away.name}</button>
                         `;
                         jogosDiv.appendChild(jogoDiv);
                     });
@@ -47,9 +48,9 @@
             }
         }
 
-        async function carregarEstatisticas(fixture_id) {
+        async function carregarEstatisticas(fixture_id, team_id) {
             try {
-                const response = await fetch(`/api/jogo-estatisticas/${fixture_id}`);
+                const response = await fetch(`/api/jogo-estatisticas/${fixture_id}?team_id=${team_id}`);
                 const data = await response.json();
 
                 const estatisticasDiv = document.getElementById("estatisticas");
@@ -75,3 +76,4 @@
     </script>
 </body>
 </html>
+
