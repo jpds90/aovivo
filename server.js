@@ -16,7 +16,7 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
         const response = await fetch("https://v3.football.api-sports.io/fixtures?live=all", {
             method: "GET",
             headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc1000",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
                 "Content-Type": "application/json"
             }
         });
@@ -31,13 +31,20 @@ app.get('/api/jogos-ao-vivo', async (req, res) => {
 
 // Rota para buscar estatísticas dos jogos ao vivo
 app.get('/api/jogo-estatisticas/:fixture_id', async (req, res) => {
-    const { fixture_id } = req.params;  // Pega o fixture_id da URL
+    const { fixture_id } = req.params;
+    const { team_id } = req.query; // Parâmetro opcional para buscar estatísticas de um time específico
+
+    let url = `https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixture_id}`;
+    if (team_id) {
+        url += `&team=${team_id}`;
+    }
 
     try {
-        const response = await fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixture_id}`, {
+        const response = await fetch(url, {
             method: "GET",
             headers: {
-                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc1000",
+                "x-apisports-key": "d6db9473fe5b77e7f299cadd12f2c0bc",
+                "x-rapidapi-host": "v3.football.api-sports.io",
                 "Content-Type": "application/json"
             }
         });
@@ -49,6 +56,7 @@ app.get('/api/jogo-estatisticas/:fixture_id', async (req, res) => {
         res.status(500).json({ error: "Erro interno no servidor" });
     }
 });
+
 
 app.use(express.static('public'));
 app.get('/', (req, res) => {
